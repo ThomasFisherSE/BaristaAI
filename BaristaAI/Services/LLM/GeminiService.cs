@@ -1,25 +1,28 @@
-﻿using Microsoft.Extensions.Configuration;
-using Mscc.GenerativeAI;
+﻿using Mscc.GenerativeAI;
 
-namespace BaristaAI.Services
+namespace BaristaAI.Services.LLM
 {
     internal class GeminiService : ILLMService
     {
         private const string UninitializedModelExceptionMsg = $"Must initialize model ({nameof(InitializeModel)}) before using it";
         private const string DefaultGenerativeModelType = Model.Gemini15Pro;
+        private const string APIKeyName = "gemini-api-key";
 
-        private readonly GoogleAI _geminiClient;
+        private readonly IAPIKeyService _apiKeyService;
 
+        private GoogleAI? _geminiClient;
         private GenerativeModel? _geminiModel;
         private ChatSession? _chatSession;
 
-        public GeminiService()
+        public GeminiService(IAPIKeyService apiKeyService)
         {
-            _geminiClient = new GoogleAI(GetAPIKey());
+            _apiKeyService = apiKeyService;
         }
 
-        public void InitializeModel(string? contextString)
+        public async Task InitializeModel(string? contextString)
         {
+            _geminiClient ??= await InitializeGeminiClient();
+
             Content? systemInstructionContent = contextString != null ? new Content(contextString) : null;
             _geminiModel = _geminiClient.GenerativeModel(DefaultGenerativeModelType, systemInstruction: systemInstructionContent);
         }
@@ -57,11 +60,10 @@ namespace BaristaAI.Services
             return response.Text;
         }
 
-        private static string? GetAPIKey()
+        private async Task<GoogleAI> InitializeGeminiClient()
         {
-            var builder = new ConfigurationBuilder().AddUserSecrets<GeminiService>();
-            var configuration = builder.Build();
-            return configuration["GeminiApiKey"];
+            var apiKey = await _apiKeyService.RequestAPIKey(APIKeyName);
+            return new GoogleAI(apiKey);
         }
     }
 }

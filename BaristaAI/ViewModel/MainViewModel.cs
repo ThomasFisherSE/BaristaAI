@@ -1,4 +1,4 @@
-﻿using BaristaAI.Services;
+﻿using BaristaAI.Services.LLM;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -34,7 +34,7 @@ namespace BaristaAI.ViewModel
         public MainViewModel(ILLMService llmService)
         {
             _llmService = llmService;
-            InitializeBaristaChatSession();
+            _ = InitializeBaristaChatSession();
         }
 
         public async Task GetChatResponse(string message)
@@ -51,11 +51,12 @@ namespace BaristaAI.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void InitializeBaristaChatSession()
+        private async Task InitializeBaristaChatSession()
         {
             string baristaContext = "You are an expert barista who likes to help home brewers to perfect their coffee. " + 
                 "From now on, you only answer questions in ways that relate to coffee brewing, otherwise you ask if there's anything coffee brewing related that you can help with.";
-            _llmService.InitializeModel(baristaContext);
+
+            await _llmService.InitializeModel(baristaContext);
             _llmService.BeginNewChat(InitialMessageText);
         }
     }

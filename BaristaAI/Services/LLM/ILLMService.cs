@@ -1,4 +1,4 @@
-﻿namespace BaristaAI.Services
+﻿namespace BaristaAI.Services.LLM
 {
     public interface ILLMService
     {
@@ -6,7 +6,7 @@
         /// Initializes a new model
         /// </summary>
         /// <param name="contextString">Optional string to provide initial context to the model</param>
-        public void InitializeModel(string? contextString);
+        public Task InitializeModel(string? contextString);
 
         /// <summary>
         /// Begins a new chat session

@@ -1,5 +1,7 @@
 ﻿using BaristaAI.Services;
+using BaristaAI.Services.LLM;
 using BaristaAI.ViewModel;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
 namespace BaristaAI
@@ -11,6 +13,7 @@ namespace BaristaAI
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -23,6 +26,7 @@ namespace BaristaAI
 
             // Register services
             builder.Services.AddSingleton<ILLMService, GeminiService>();
+            builder.Services.AddSingleton<IAPIKeyService, APIKeyService>();
             builder.Services.AddSingleton<AppShell>();
             builder.Services.AddSingleton<MainViewModel>();
             builder.Services.AddTransient<MainPage>();

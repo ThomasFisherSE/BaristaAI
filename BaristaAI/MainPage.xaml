@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:view="clr-namespace:BaristaAI.View"
              x:Class="BaristaAI.MainPage">
 
     <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
+        <VerticalStackLayout Padding="30,0"
+                             Spacing="25">
 
             <Border>
                 <StackLayout>
                     <Label x:Name="InitialMessageLabel"
-                            Text="{Binding InitialMessageText}" />
+                           Text="{Binding InitialMessageText}" />
 
                     <Entry x:Name="PromptEntry"
                            Placeholder="Type here..." />
@@ -21,11 +21,14 @@
                             SemanticProperties.Hint="Sends your message to your personal AI barista assistant."
                             Clicked="OnSubmitClicked"
                             HorizontalOptions="Fill" />
+                    
+                    <view:MarkdownView HeightRequest="500"
+                                       VerticalOptions="FillAndExpand"
+                                       MarkdownContent="{Binding ResponseText}" />
 
-                    <Label Text="{Binding ResponseText}" />
                 </StackLayout>
             </Border>
-            
+
         </VerticalStackLayout>
     </ScrollView>
 

@@ -4,32 +4,37 @@
              xmlns:view="clr-namespace:BaristaAI.View"
              x:Class="BaristaAI.MainPage">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="30,0"
-                             Spacing="25">
+    <ContentPage.Content>
+        <Grid Padding="20"
+              RowSpacing="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            <Border>
-                <StackLayout>
-                    <Label x:Name="InitialMessageLabel"
-                           Text="{Binding InitialMessageText}" />
+            <VerticalStackLayout Grid.Row="0"
+                                 Spacing="10">
+                <Label x:Name="InitialMessageLabel"
+                       Text="{Binding InitialMessageText}"
+                       FontSize="18" />
 
-                    <Entry x:Name="PromptEntry"
-                           Placeholder="Type here..." />
+                <Entry x:Name="PromptEntry"
+                       Placeholder="Type here..." />
 
-                    <Button x:Name="SubmitButton"
-                            Text="Submit"
-                            SemanticProperties.Hint="Sends your message to your personal AI barista assistant."
-                            Clicked="OnSubmitClicked"
-                            HorizontalOptions="Fill" />
-                    
-                    <view:MarkdownView HeightRequest="500"
-                                       VerticalOptions="FillAndExpand"
-                                       MarkdownContent="{Binding ResponseText}" />
+                <Button x:Name="SubmitButton"
+                        Text="Submit"
+                        SemanticProperties.Hint="Sends your message to your personal AI barista assistant."
+                        Clicked="OnSubmitClicked"
+                        HorizontalOptions="Fill" />
+            </VerticalStackLayout>
 
-                </StackLayout>
-            </Border>
-
-        </VerticalStackLayout>
-    </ScrollView>
-
+            <Frame Grid.Row="1"
+                   CornerRadius="10"
+                   Padding="0"
+                   VerticalOptions="FillAndExpand"
+                   HorizontalOptions="FillAndExpand">
+                <view:MarkdownView MarkdownContent="{Binding ResponseText}" />
+            </Frame>
+        </Grid>
+    </ContentPage.Content>
 </ContentPage>

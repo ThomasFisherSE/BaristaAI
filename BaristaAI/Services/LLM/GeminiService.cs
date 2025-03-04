@@ -8,11 +8,15 @@ namespace BaristaAI.Services.LLM
         private const string DefaultGenerativeModelType = Model.Gemini15Pro;
         private const string APIKeyName = "gemini-api-key";
 
+        private const string InvalidAPIKeyExceptionContent = "API key not valid";
+
         private readonly IAPIKeyService _apiKeyService;
 
         private GoogleAI? _geminiClient;
         private GenerativeModel? _geminiModel;
         private ChatSession? _chatSession;
+
+        private string? _contextString;
 
         public GeminiService(IAPIKeyService apiKeyService)
         {
@@ -21,9 +25,15 @@ namespace BaristaAI.Services.LLM
 
         public async Task InitializeModel(string? contextString)
         {
-            _geminiClient ??= await InitializeGeminiClient();
+            _contextString = contextString;
+            await InitializeModel();
+        }
 
-            Content? systemInstructionContent = contextString != null ? new Content(contextString) : null;
+        private async Task InitializeModel()
+        {
+            _geminiClient = await InitializeGeminiClient();
+
+            Content? systemInstructionContent = _contextString != null ? new Content(_contextString) : null;
             _geminiModel = _geminiClient.GenerativeModel(DefaultGenerativeModelType, systemInstruction: systemInstructionContent);
         }
 
@@ -47,8 +57,29 @@ namespace BaristaAI.Services.LLM
             if (_chatSession == null)
                 throw new InvalidOperationException(UninitializedModelExceptionMsg);
 
-            var response = await _chatSession.SendMessage(message);
-            return response.Text;
+            try
+            {
+                var response = await _chatSession.SendMessage(message);
+                return response.Text;
+            }
+            catch (HttpRequestException httpRequestException)
+            {
+                if (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
+                {
+                    await AttemptToFixAPIKey();
+                    return await GetChatResponse(message);
+                }
+                else
+                {
+                    LogUnxpectedException(httpRequestException);
+                }
+            }
+            catch (Exception exception)
+            {
+                LogUnxpectedException(exception);
+            }
+
+            return null;
         }
 
         public async Task<string?> GetTextResponse(string prompt)
@@ -56,14 +87,47 @@ namespace BaristaAI.Services.LLM
             if (_geminiModel == null)
                 throw new InvalidOperationException(UninitializedModelExceptionMsg);
 
-            var response = await _geminiModel.GenerateContent(prompt);
-            return response.Text;
+            try
+            {
+                var response = await _geminiModel.GenerateContent(prompt);
+                return response.Text;
+            }
+            catch (HttpRequestException httpRequestException)
+            {
+                if (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
+                {
+                    await AttemptToFixAPIKey();
+                    return await GetTextResponse(prompt);
+                }
+                else
+                {
+                    LogUnxpectedException(httpRequestException);
+                }
+            }
+            catch (Exception exception)
+            {
+                LogUnxpectedException(exception);
+            }
+
+            return null;
+        }
+
+        private async Task AttemptToFixAPIKey()
+        {
+            // Re-acquire API key
+            _apiKeyService.RemoveCurrentAPIKey();
+            await InitializeModel();
         }
 
         private async Task<GoogleAI> InitializeGeminiClient()
         {
             var apiKey = await _apiKeyService.RequestAPIKey(APIKeyName);
             return new GoogleAI(apiKey);
+        }
+
+        private static void LogUnxpectedException(Exception exception)
+        {
+            Console.Error.WriteLine($"Unexpected error occurred: {exception}");
         }
     }
 }

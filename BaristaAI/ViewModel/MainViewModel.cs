@@ -72,6 +72,11 @@ namespace BaristaAI.ViewModel
                 ResponseText = string.IsNullOrEmpty(response.Text)
                     ? "Sorry, something went wrong. Please try again."
                     : response.Text;
+                
+                if (!string.IsNullOrEmpty(response.Error))
+                {
+                    ResponseText += '\n' + $"<details><summary>Expand Error Details</summary>{response.Error}</details>";
+                }
             }
         }
 

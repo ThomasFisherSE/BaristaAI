@@ -14,18 +14,18 @@ namespace BaristaAI
 
         private void OnSubmitClicked(object sender, EventArgs e)
         {
-            _ = SubmitPrompt(PromptEntry.Text);
+            _ = SubmitMessage(MessageEntry.Text);
         }
 
-        private async Task<bool> SubmitPrompt(string prompt)
+        private async Task<bool> SubmitMessage(string message)
         {
             // Disable the UI while waiting for the response
-            BlockNewPrompts();
+            BlockNewMessages();
 
             var success = true;
             try
             {
-                await _viewModel.GetChatResponse(prompt);
+                await _viewModel.GetChatResponse(message);
             }
             catch (Exception exception)
             {
@@ -36,25 +36,25 @@ namespace BaristaAI
             finally
             {
                 // Revert UI back to ready state
-                AllowNewPrompts();
+                AllowNewMessages();
             }
 
             return success;
         }
 
-        private void BlockNewPrompts()
+        private void BlockNewMessages()
         {
             SubmitButton.IsEnabled = false;
             SubmitButton.Text = "I'm thinking about it, please wait...";
-            PromptEntry.IsEnabled = false;
+            MessageEntry.IsEnabled = false;
         }
 
-        private void AllowNewPrompts()
+        private void AllowNewMessages()
         {
             SubmitButton.Text = "Submit";
             SubmitButton.IsEnabled = true;
-            PromptEntry.Text = string.Empty;
-            PromptEntry.IsEnabled = true;
+            MessageEntry.Text = string.Empty;
+            MessageEntry.IsEnabled = true;
         }
     }
 }

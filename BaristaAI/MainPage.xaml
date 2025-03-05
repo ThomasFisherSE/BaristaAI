@@ -18,7 +18,7 @@
                 <Label Text="{Binding InitialMessageText}"
                        FontSize="18" />
 
-                <Entry x:Name="PromptEntry"
+                <Entry x:Name="MessageEntry"
                        Placeholder="Type here..." />
 
                 <Button x:Name="SubmitButton"

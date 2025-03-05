@@ -10,7 +10,9 @@ namespace BaristaAI.ViewModel
 
         private string _responseText = string.Empty;
         private string _initialMessageText = "Hi, I'm your personal AI barista assistant! Let me know any issues with your coffee and I'll try and help you fix it.";
-
+        
+        public event PropertyChangedEventHandler? PropertyChanged;
+        
         public string ResponseText
         {
             get => _responseText;
@@ -36,6 +38,11 @@ namespace BaristaAI.ViewModel
             _llmService = llmService;
             _ = InitializeBaristaChatSession();
         }
+        
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public async Task GetChatResponse(string message)
         {
@@ -45,15 +52,9 @@ namespace BaristaAI.ViewModel
                 ResponseText = await _llmService.GetChatResponse(message) ?? "Sorry, something went wrong. Please try again.";
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private async Task InitializeBaristaChatSession()
         {
-            string baristaContext = "You are an expert barista who likes to help home brewers to perfect their coffee. " + 
+            const string baristaContext = "You are an expert barista who likes to help home brewers to perfect their coffee. " + 
                 "From now on, you only answer questions in ways that relate to coffee brewing, otherwise you ask if there's anything coffee brewing related that you can help with.";
 
             await _llmService.InitializeModel(baristaContext);

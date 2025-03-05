@@ -66,11 +66,8 @@ namespace BaristaAI.Services.LLM
             catch (HttpRequestException httpRequestException) 
                 when (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
             {
-                if (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
-                {
-                    await AttemptToFixAPIKey();
-                    result = await GetTextContentFromPrompt(prompt);
-                }
+                await AttemptToFixAPIKey();
+                response = await GetTextContentFromPrompt(prompt);
             }
             catch (Exception exception)
             {

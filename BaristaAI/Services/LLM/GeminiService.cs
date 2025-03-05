@@ -71,12 +71,12 @@ namespace BaristaAI.Services.LLM
                 }
                 else
                 {
-                    LogUnxpectedException(httpRequestException);
+                    LogUnexpectedException(httpRequestException);
                 }
             }
             catch (Exception exception)
             {
-                LogUnxpectedException(exception);
+                LogUnexpectedException(exception);
             }
 
             return null;
@@ -101,12 +101,12 @@ namespace BaristaAI.Services.LLM
                 }
                 else
                 {
-                    LogUnxpectedException(httpRequestException);
+                    LogUnexpectedException(httpRequestException);
                 }
             }
             catch (Exception exception)
             {
-                LogUnxpectedException(exception);
+                LogUnexpectedException(exception);
             }
 
             return null;
@@ -125,7 +125,7 @@ namespace BaristaAI.Services.LLM
             return new GoogleAI(apiKey);
         }
 
-        private static void LogUnxpectedException(Exception exception)
+        private static void LogUnexpectedException(Exception exception)
         {
             Console.Error.WriteLine($"Unexpected error occurred: {exception}");
         }

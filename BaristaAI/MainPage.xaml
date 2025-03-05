@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:view="clr-namespace:BaristaAI.View"
-             x:Class="BaristaAI.MainPage">
+             xmlns:viewModel="using:BaristaAI.ViewModel"
+             x:Class="BaristaAI.MainPage" x:DataType="viewModel:MainViewModel">
 
     <ContentPage.Content>
         <Grid Padding="20"
@@ -14,8 +15,7 @@
 
             <VerticalStackLayout Grid.Row="0"
                                  Spacing="10">
-                <Label x:Name="InitialMessageLabel"
-                       Text="{Binding InitialMessageText}"
+                <Label Text="{Binding InitialMessageText}"
                        FontSize="18" />
 
                 <Entry x:Name="PromptEntry"

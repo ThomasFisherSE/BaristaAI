@@ -9,7 +9,7 @@ namespace BaristaAI.ViewModel
         private readonly ILLMService _llmService;
 
         private string _responseText = string.Empty;
-        private string _initialMessageText = "Hi, I'm your personal AI barista assistant! Let me know any issues with your coffee and I'll try and help you fix it.";
+        private string _initialMessageText = "Hi, I'm your personal AI barista assistant! How can I help?";
         
         private const string DefaultBaristaAssistantContext = 
             """

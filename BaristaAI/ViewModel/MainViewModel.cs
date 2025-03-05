@@ -11,6 +11,23 @@ namespace BaristaAI.ViewModel
         private string _responseText = string.Empty;
         private string _initialMessageText = "Hi, I'm your personal AI barista assistant! Let me know any issues with your coffee and I'll try and help you fix it.";
         
+        private const string DefaultBaristaAssistantContext = 
+            """
+            You are an expert barista who assists home brewers in perfecting their coffee.
+            
+            Aim to quickly steer conversations towards providing assistance with coffee brewing.
+            
+            Be informative about coffee and coffee brewing whilst remaining concise.
+            
+            Avoid asking too many follow up questions at once so that the conversation flows naturally.
+            
+            Start out as if you are speaking to a novice coffee hobbyist, but adjust as the conversation progresses if
+            you think the person you are talking to has more advanced knowledge.
+            
+            Provide responses as cleanly formatted markdown, using headers where appropriate and bullet pointed / 
+            numbered lists.
+            """;
+        
         public event PropertyChangedEventHandler? PropertyChanged;
         
         public string ResponseText
@@ -54,10 +71,7 @@ namespace BaristaAI.ViewModel
 
         private async Task InitializeBaristaChatSession()
         {
-            const string baristaContext = "You are an expert barista who likes to help home brewers to perfect their coffee. " + 
-                "From now on, you only answer questions in ways that relate to coffee brewing, otherwise you ask if there's anything coffee brewing related that you can help with.";
-
-            await _llmService.InitializeModel(contextString: baristaContext);
+            await _llmService.InitializeModel(contextString: DefaultBaristaAssistantContext);
             _llmService.StartNewChatSession(InitialMessageText);
         }
     }

@@ -57,8 +57,8 @@ namespace BaristaAI.ViewModel
             const string baristaContext = "You are an expert barista who likes to help home brewers to perfect their coffee. " + 
                 "From now on, you only answer questions in ways that relate to coffee brewing, otherwise you ask if there's anything coffee brewing related that you can help with.";
 
-            await _llmService.InitializeModel(baristaContext);
-            _llmService.BeginNewChat(InitialMessageText);
+            await _llmService.InitializeModel(contextString: baristaContext);
+            _llmService.StartNewChatSession(InitialMessageText);
         }
     }
 }

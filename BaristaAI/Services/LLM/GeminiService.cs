@@ -2,15 +2,13 @@
 
 namespace BaristaAI.Services.LLM
 {
-    internal class GeminiService : ILLMService
+    internal class GeminiService(IAPIKeyService apiKeyService) : ILLMService
     {
-        private const string UninitializedModelExceptionMsg = $"Must initialize model ({nameof(InitializeModel)}) before using it";
+        private const string UninitializedModelExceptionMsg = $"Must initialize model ({nameof(InitializeModelWithCurrentData)}) before using it";
         private const string DefaultGenerativeModelType = Model.Gemini15Pro;
         private const string APIKeyName = "gemini-api-key";
 
         private const string InvalidAPIKeyExceptionContent = "API key not valid";
-
-        private readonly IAPIKeyService _apiKeyService;
 
         private GoogleAI? _geminiClient;
         private GenerativeModel? _geminiModel;
@@ -18,26 +16,22 @@ namespace BaristaAI.Services.LLM
 
         private string? _contextString;
 
-        public GeminiService(IAPIKeyService apiKeyService)
-        {
-            _apiKeyService = apiKeyService;
-        }
-
-        public async Task InitializeModel(string? contextString)
+        public async Task InitializeModel(string? contextString = null)
         {
             _contextString = contextString;
-            await InitializeModel();
+            await InitializeModelWithCurrentData();
         }
 
-        private async Task InitializeModel()
+        private async Task InitializeModelWithCurrentData()
         {
             _geminiClient = await InitializeGeminiClient();
 
-            Content? systemInstructionContent = _contextString != null ? new Content(_contextString) : null;
-            _geminiModel = _geminiClient.GenerativeModel(DefaultGenerativeModelType, systemInstruction: systemInstructionContent);
+            var systemInstructionContent = _contextString != null ? new Content(_contextString) : null;
+            _geminiModel = _geminiClient.GenerativeModel(model: DefaultGenerativeModelType, 
+                systemInstruction: systemInstructionContent);
         }
 
-        public void BeginNewChat(string? initialModelMessage = null)
+        public void StartNewChatSession(string? initialModelMessage = null)
         {
             if (_geminiModel == null)
                 throw new InvalidOperationException();
@@ -54,80 +48,67 @@ namespace BaristaAI.Services.LLM
 
         public async Task<string?> GetChatResponse(string message)
         {
-            if (_chatSession == null)
-                throw new InvalidOperationException(UninitializedModelExceptionMsg);
+            return await AttemptContentGeneration(message, GenerateChatMessageResponse);
+        }
 
+        public async Task<string?> GetTextContentFromPrompt(string prompt)
+        {
+            return await AttemptContentGeneration(prompt, GenerateTextFromPrompt);
+        }
+        
+        private async Task<string?> AttemptContentGeneration(string prompt, Func<string, Task<string?>> contentGenerationFunc)
+        {
+            string? result = null;
             try
             {
-                var response = await _chatSession.SendMessage(message);
-                return response.Text;
+                result = await contentGenerationFunc(prompt);
             }
-            catch (HttpRequestException httpRequestException)
+            catch (HttpRequestException httpRequestException) 
+                when (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
             {
                 if (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
                 {
                     await AttemptToFixAPIKey();
-                    return await GetChatResponse(message);
-                }
-                else
-                {
-                    LogUnexpectedException(httpRequestException);
+                    result = await GetTextContentFromPrompt(prompt);
                 }
             }
             catch (Exception exception)
             {
-                LogUnexpectedException(exception);
+                await Console.Error.WriteLineAsync($"Unexpected error occurred during content generation: {exception}");
             }
-
-            return null;
+            
+            return result;
+        }
+        
+        private async Task<string?> GenerateChatMessageResponse(string message)
+        {
+            if (_chatSession == null)
+                throw new InvalidOperationException(UninitializedModelExceptionMsg);
+            
+            var response = await _chatSession.SendMessage(message);
+            return response.Text;
         }
 
-        public async Task<string?> GetTextResponse(string prompt)
+        private async Task<string?> GenerateTextFromPrompt(string prompt)
         {
             if (_geminiModel == null)
                 throw new InvalidOperationException(UninitializedModelExceptionMsg);
-
-            try
-            {
-                var response = await _geminiModel.GenerateContent(prompt);
-                return response.Text;
-            }
-            catch (HttpRequestException httpRequestException)
-            {
-                if (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
-                {
-                    await AttemptToFixAPIKey();
-                    return await GetTextResponse(prompt);
-                }
-                else
-                {
-                    LogUnexpectedException(httpRequestException);
-                }
-            }
-            catch (Exception exception)
-            {
-                LogUnexpectedException(exception);
-            }
-
-            return null;
+            
+            var response = await _geminiModel.GenerateContent(prompt);
+            return response.Text;
         }
-
+        
         private async Task AttemptToFixAPIKey()
         {
             // Re-acquire API key
-            _apiKeyService.RemoveCurrentAPIKey();
-            await InitializeModel();
+            apiKeyService.RemoveCurrentAPIKey();
+            await InitializeModelWithCurrentData();
         }
 
         private async Task<GoogleAI> InitializeGeminiClient()
         {
-            var apiKey = await _apiKeyService.RequestAPIKey(APIKeyName);
+            var apiKey = await apiKeyService.RequestAPIKey(APIKeyName);
             return new GoogleAI(apiKey);
-        }
-
-        private static void LogUnexpectedException(Exception exception)
-        {
-            Console.Error.WriteLine($"Unexpected error occurred: {exception}");
         }
     }
 }

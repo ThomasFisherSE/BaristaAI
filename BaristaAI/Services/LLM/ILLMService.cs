@@ -6,26 +6,26 @@
         /// Initializes a new model
         /// </summary>
         /// <param name="contextString">Optional string to provide initial context to the model</param>
-        public Task InitializeModel(string? contextString);
+        public Task InitializeModel(string? contextString = null);
 
         /// <summary>
-        /// Begins a new chat session
+        /// Starts a new chat session
         /// </summary>
         /// <param name="initialModelMessage">Optional initial message the model should send</param>
-        public void BeginNewChat(string? initialModelMessage = null);
+        public void StartNewChatSession(string? initialModelMessage = null);
 
         /// <summary>
-        /// Get a response in the context of the current chat session (must have called <see cref="BeginNewChat(string?)"/> first)
+        /// Generate text in response to a chat message within the context of the current chat session
         /// </summary>
-        /// <param name="message">The chat message to send</param>
+        /// <param name="message">The chat message to generate a response to</param>
         /// <returns>A task returning the model's chat response</returns>
         public Task<string?> GetChatResponse(string message);
 
         /// <summary>
-        /// Get a text response for a given prompt
+        /// Generate text content from a given prompt
         /// </summary>
         /// <param name="prompt">The prompt string</param>
         /// <returns>A task returning the model's text response</returns>
-        public Task<string?> GetTextResponse(string prompt);
+        public Task<string?> GetTextContentFromPrompt(string prompt);
     }
 }

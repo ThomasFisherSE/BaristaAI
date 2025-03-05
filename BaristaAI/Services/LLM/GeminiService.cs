@@ -1,11 +1,12 @@
 ﻿using Mscc.GenerativeAI;
+using GenerateTextResponse = BaristaAI.Model.GenerateTextResponse;
 
 namespace BaristaAI.Services.LLM
 {
     internal class GeminiService(IAPIKeyService apiKeyService) : ILLMService
     {
         private const string UninitializedModelExceptionMsg = $"Must initialize model ({nameof(InitializeModelWithCurrentData)}) before using it";
-        private const string DefaultGenerativeModelType = Model.Gemini15Pro;
+        private const string DefaultGenerativeModelType = Mscc.GenerativeAI.Model.Gemini15Pro;
         private const string APIKeyName = "gemini-api-key";
 
         private const string InvalidAPIKeyExceptionContent = "API key not valid";
@@ -46,22 +47,23 @@ namespace BaristaAI.Services.LLM
             _geminiModel.StartChat(history);
         }
 
-        public async Task<string?> GetChatResponse(string message)
+        public async Task<GenerateTextResponse> GetChatResponse(string message)
         {
             return await AttemptContentGeneration(message, GenerateChatMessageResponse);
         }
 
-        public async Task<string?> GetTextContentFromPrompt(string prompt)
+        public async Task<GenerateTextResponse> GetTextContentFromPrompt(string prompt)
         {
             return await AttemptContentGeneration(prompt, GenerateTextFromPrompt);
         }
         
-        private async Task<string?> AttemptContentGeneration(string prompt, Func<string, Task<string?>> contentGenerationFunc)
+        private async Task<GenerateTextResponse> AttemptContentGeneration(string prompt, 
+            Func<string, Task<GenerateTextResponse>> textGenerationFunc)
         {
-            string? result = null;
+            GenerateTextResponse? response;
             try
             {
-                result = await contentGenerationFunc(prompt);
+                response = await textGenerationFunc(prompt);
             }
             catch (HttpRequestException httpRequestException) 
                 when (httpRequestException.Message.Contains(InvalidAPIKeyExceptionContent))
@@ -72,27 +74,28 @@ namespace BaristaAI.Services.LLM
             catch (Exception exception)
             {
                 await Console.Error.WriteLineAsync($"Unexpected error occurred during content generation: {exception}");
+                response = new GenerateTextResponse(text: null, error: exception.Message, isValid: false);
             }
             
-            return result;
+            return response;
         }
         
-        private async Task<string?> GenerateChatMessageResponse(string message)
+        private async Task<GenerateTextResponse> GenerateChatMessageResponse(string message)
         {
             if (_chatSession == null)
                 throw new InvalidOperationException(UninitializedModelExceptionMsg);
             
             var response = await _chatSession.SendMessage(message);
-            return response.Text;
+            return new GenerateTextResponse(response.Text);
         }
 
-        private async Task<string?> GenerateTextFromPrompt(string prompt)
+        private async Task<GenerateTextResponse> GenerateTextFromPrompt(string prompt)
         {
             if (_geminiModel == null)
                 throw new InvalidOperationException(UninitializedModelExceptionMsg);
             
             var response = await _geminiModel.GenerateContent(prompt);
-            return response.Text;
+            return new GenerateTextResponse(response.Text);
         }
         
         private async Task AttemptToFixAPIKey()

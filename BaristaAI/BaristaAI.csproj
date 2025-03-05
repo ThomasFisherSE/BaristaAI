@@ -68,7 +68,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Model\" />
 	  <Folder Include="Resources\Fonts\" />
 	  <Folder Include="Resources\Images\" />
 	  <Folder Include="Resources\Raw\" />

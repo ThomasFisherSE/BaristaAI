@@ -61,12 +61,18 @@ namespace BaristaAI.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public async Task GetChatResponse(string message)
+        public async Task SubmitMessage(string message)
         {
             if (string.IsNullOrEmpty(message))
                 ResponseText = "Please type your message into the text box above before hitting submit.";
             else
-                ResponseText = await _llmService.GetChatResponse(message) ?? "Sorry, something went wrong. Please try again.";
+            {
+                var response = await _llmService.GetChatResponse(message);
+                
+                ResponseText = string.IsNullOrEmpty(response.Text)
+                    ? "Sorry, something went wrong. Please try again."
+                    : response.Text;
+            }
         }
 
         private async Task InitializeBaristaChatSession()

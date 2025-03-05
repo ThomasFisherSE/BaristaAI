@@ -25,7 +25,7 @@ namespace BaristaAI
             var success = true;
             try
             {
-                await _viewModel.GetChatResponse(message);
+                await _viewModel.SubmitMessage(message);
             }
             catch (Exception exception)
             {

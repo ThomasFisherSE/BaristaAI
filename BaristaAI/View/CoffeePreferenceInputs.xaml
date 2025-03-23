@@ -6,19 +6,30 @@
     <ContentView.Content>
         <VerticalStackLayout>
             <VerticalStackLayout>
-                <Label Text="Brewing Type (e.g. Espresso Machine? French Press? Filter?): "
+                <Label Text="Brewing Methods: "
                        FontSize="18" />
 
-                <Entry x:Name="BrewingTypeEntry"
-                       Placeholder="Type here..." />
+                <HorizontalStackLayout>
+                    <Button Text="Espresso Machine" />
+                    <Button Text="French Press" />
+                    <Button Text="AeroPress" />
+                    <Button Text="Custom" />
+                </HorizontalStackLayout>
+                
             </VerticalStackLayout>
             
             <VerticalStackLayout>
-                <Label Text="Taste Preferences (e.g. Chocolatey? Acidic?): "
+                <Label Text="Taste Preferences: "
                        FontSize="18" />
 
-                <Entry x:Name="TastePreferencesEntry"
-                       Placeholder="Type here..." />
+                <HorizontalStackLayout>
+                    <Button Text="Chocolatey" />
+                    <Button Text="Nutty" />
+                    <Button Text="Fruity" />
+                    <Button Text="Floral" />
+                    <Button Text="Spicy" />
+                    <Button Text="Custom" />
+                </HorizontalStackLayout>
             </VerticalStackLayout>
         </VerticalStackLayout>
     </ContentView.Content>

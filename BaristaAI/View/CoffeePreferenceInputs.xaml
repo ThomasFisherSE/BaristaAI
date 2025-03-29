@@ -6,20 +6,34 @@
     <ContentView.Content>
         <VerticalStackLayout>
             <VerticalStackLayout>
-                <Label Text="Brewing Methods: "
+                <Label Text="Brewing Methods - Which method(s) are you interested in?: "
                        FontSize="18" />
 
                 <HorizontalStackLayout>
-                    <Button Text="Espresso Machine" />
-                    <Button Text="French Press" />
-                    <Button Text="AeroPress" />
-                    <Button Text="Custom" />
+                    <Button Text= "Espresso Machine" 
+                            WidthRequest="150" 
+                            HeightRequest="100" />
+                    <Button Text="French Press" 
+                            WidthRequest="150" 
+                            HeightRequest="100" />
+                    <Button Text="Drip Filter" 
+                            WidthRequest="150" 
+                            HeightRequest="100" />
+                    <Button Text="Moka Pot"
+                            WidthRequest="150" 
+                            HeightRequest="100" />
+                    <Button Text="Instant" 
+                            WidthRequest="150" 
+                            HeightRequest="100" />
+                    <Button Text="Other"
+                            WidthRequest="150" 
+                            HeightRequest="100" />
                 </HorizontalStackLayout>
                 
             </VerticalStackLayout>
             
             <VerticalStackLayout>
-                <Label Text="Taste Preferences: "
+                <Label Text="Taste Preferences - What tastes do you like?: "
                        FontSize="18" />
 
                 <HorizontalStackLayout>
